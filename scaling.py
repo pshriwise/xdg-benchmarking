@@ -52,38 +52,9 @@ def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_threa
 
     return threads, inactive_rates, active_rates
 
-MAX_THREADS = 90
-n_runs = 1
-particles_per_thread = 100
+def generate_model_figure(model_name, config):
 
-
-if __name__ == '__main__':
-
-    ap = ArgumentParser()
-
-    ap.add_argument('--config', type=str, help='Path to configuration file', default='scaling_config.i')
-    ap.add_argument('--use-cache', type=bool, help='Use cached data', action=BooleanOptionalAction, default=False)
-    ap.add_argument('--input-paths', type=str, nargs='+')
-
-    args = ap.parse_args()
-
-    if args.config:
-        config = configparser.ConfigParser()
-        config.read(args.config)
-        args.openmc_executables = list(config['executables'].values())
-        args.executable_names = list(config['executables'].keys())
-        args.model_names = list(config['models'].keys())
-        args.input_paths = list(config['models'].values())
-
-    print(f'OpenMC Executables: {args.openmc_executables}')
-    print(f'Model Names: {args.model_names}')
-    print(f'Input Paths: {args.input_paths}')
-    print(f'Model names: {args.model_names}')
-
-    if len(args.openmc_executables) != len(args.executable_names):
-        raise ValueError('Number of executable paths must match number of names')
-
-    fig = make_subplots(rows=len(args.input_paths), cols=2, subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling'))
+    fig = make_subplots(rows=1, cols=2, subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling'))
     fig.update_xaxes(title_text='Threads', row=1, col=1)
     fig.update_yaxes(title_text='Particles per second', row=1, col=1)
     fig.update_xaxes(title_text='Threads', row=1, col=2)
@@ -95,62 +66,116 @@ if __name__ == '__main__':
         yaxis2=dict(showgrid=True)
     )
 
-    for i, (model_name, input_path) in enumerate(zip(args.model_names, args.input_paths)):
-        fig.update_yaxes(title_text=model_name, row=i+1, col=1)
-        fig.update_yaxes(title_text=model_name, row=i+1, col=2)
-
     # ensure that the cache directory exists
     Path('./.cache').mkdir(exist_ok=True)
 
-    for i, input_path in enumerate(args.input_paths):
-        model_name = input_path.split('/')[-1]
-        for j, (e, n) in enumerate(zip(args.openmc_executables, args.executable_names)):
+    input_path = config['models'][model_name]
 
-            data_file = './.cache/' / Path(f'{model_name}_{n}_scaling.csv')
+    for j, (n, e) in enumerate(config['executables'].items()):
 
-            if args.use_cache and data_file.exists():
-                print(f'Using cached data for {model_name} ({n})')
-                data = np.loadtxt(data_file, delimiter=',')
-                threads, inactive_rates, active_rates = data[:, 0], data[:, 1], data[:, 2]
+        data_file = './.cache/' / Path(f'{model_name}_{n}_scaling.csv')
+
+        if config.getboolean('options', 'use_cache') and data_file.exists():
+            print(f'Using cached data for {model_name} ({n})')
+            data = np.loadtxt(data_file, delimiter=',')
+            threads, inactive_rates, active_rates = data[:, 0], data[:, 1], data[:, 2]
+        else:
+            if n in config['max_threads']:
+                max_threads = int(config['max_threads'][n])
             else:
-                if n in config['max_threads']:
-                    max_threads = int(config['max_threads'][n])
-                else:
-                    max_threads = MAX_THREADS
-                print(f'Gathering scaling data for {model_name} ({n})')
-                threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread)
+                max_threads = MAX_THREADS
+            print(f'Gathering scaling data for {model_name} ({n})')
+            threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread)
 
-                data = np.column_stack((threads, inactive_rates, active_rates))
-                np.savetxt(data_file, data, delimiter=',', header='Threads,Inactive rate,Active rate')
+            data = np.column_stack((threads, inactive_rates, active_rates))
+            np.savetxt(data_file, data, delimiter=',', header='Threads,Inactive rate,Active rate')
 
-            if all(inactive_rates != np.nan):
-                plt.figure()
-                plt.title('Inactive Rate Scaling')
-                plt.plot(threads, inactive_rates, label=f'Inactive rate ({model_name})')
-                plt.xlabel('Threads')
-                plt.ylabel('Particles per second')
-                plt.legend()
-                plt.grid()
-                plt.savefig('inactive_rate_scaling.png')
-
+        if all(inactive_rates != np.nan):
             plt.figure()
-            plt.title('Active Rate Scaling')
-            plt.plot(threads, active_rates, label=f'Active rate ({model_name})')
+            plt.title('Inactive Rate Scaling')
+            plt.plot(threads, inactive_rates, label=f'Inactive rate ({model_name})')
             plt.xlabel('Threads')
             plt.ylabel('Particles per second')
             plt.legend()
             plt.grid()
-            plt.savefig('active_rate_scaling.png')
+            plt.savefig(f'{model_name}_{n}_inactive_rates.png')
 
-            if all(inactive_rates != np.nan):
-                fig.add_trace(
-                    go.Scatter(x=threads, y=inactive_rates, mode='lines+markers', name=n),
-                    row=i+1, col=1
-                )
+        plt.figure()
+        plt.title('Active Rate Scaling')
+        plt.plot(threads, active_rates, label=f'Active rate ({model_name})')
+        plt.xlabel('Threads')
+        plt.ylabel('Particles per second')
+        plt.legend()
+        plt.grid()
+        plt.savefig(f'{model_name}_{n}_active_rates.png')
 
+        if all(inactive_rates != np.nan):
             fig.add_trace(
-                go.Scatter(x=threads, y=active_rates, mode='lines+markers', name=n),
-                row=i+1, col=2
+                go.Scatter(x=threads, y=inactive_rates, mode='lines+markers', name=n),
+                row=1, col=1
             )
 
-    fig.write_html(f'dashboard.html')
+        fig.add_trace(
+            go.Scatter(x=threads, y=active_rates, mode='lines+markers', name=n),
+            row=1, col=2
+        )
+
+    return fig
+
+MAX_THREADS = 90
+n_runs = 1
+particles_per_thread = 100
+
+
+def model_figures(config_file='scaling_config.ini'):
+    config = configparser.ConfigParser()
+    config.read(config_file)
+
+    figure_dict = {}
+    for i, input_path in enumerate(config['models'].values()):
+        model_name = input_path.split('/')[-1] ## TODO: update to keys of models in config
+        fig = generate_model_figure(model_name, config)
+        figure_dict[model_name] = fig
+
+    return figure_dict
+
+def main():
+    ap = ArgumentParser()
+
+    ap.add_argument('--config', type=str, help='Path to configuration file', default='scaling_config.i')
+    ap.add_argument('--use-cache', type=bool, help='Use cached data', action=BooleanOptionalAction, default=False)
+
+    args = ap.parse_args()
+
+    config = configparser.ConfigParser()
+    config.read(args.config)
+
+    if args.use_cache:
+        config.set('options', 'use_cache', 'True')
+
+    print(f'Models: {config['models']}')
+    print(f'OpenMC Executables: {config['executables']}')
+
+    fig = make_subplots(rows=len(config['models']), cols=2, subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling'))
+    fig.update_xaxes(title_text='Threads', row=1, col=1)
+    fig.update_yaxes(title_text='Particles per second', row=1, col=1)
+    fig.update_xaxes(title_text='Threads', row=1, col=2)
+    fig.update_yaxes(title_text='Particles per second', row=1, col=2)
+    fig.update_layout(
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True),
+        xaxis2=dict(showgrid=True),
+        yaxis2=dict(showgrid=True)
+    )
+
+    figure_dict = model_figures(args.config)
+
+    for i, (model_name, input_path) in enumerate(config['models'].items()):
+        fig.update_yaxes(title_text=model_name, row=i+1, col=1)
+        fig.update_yaxes(title_text=model_name, row=i+1, col=2)
+
+    for model_name, fig in figure_dict.items():
+        fig.write_html(f'{model_name}_dashboard.html')
+
+if __name__ == '__main__':
+    main()
