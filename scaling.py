@@ -9,6 +9,14 @@ import configparser
 import plotly.graph_objects as go
 
 
+# Using this config parser to preserve case sensitivity
+class MyConfigParser(configparser.ConfigParser):
+
+    def __init__(self, *args, **kwargs):
+        super(MyConfigParser, self).__init__(*args, **kwargs)
+        self.optionxform = str
+
+
 def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_thread):
 
     threads = np.array(range(0, max_threads, 5))
@@ -127,14 +135,11 @@ particles_per_thread = 100
 
 
 def model_figures(config_file='scaling_config.i'):
-    config = configparser.ConfigParser()
+    config = MyConfigParser()
+    config.optionxform = str
     config.read(config_file)
 
-    figure_dict = {}
-    for i, input_path in enumerate(config['models'].values()):
-        model_name = input_path.split('/')[-1] ## TODO: update to keys of models in config
-        fig = generate_model_figure(model_name, config)
-        figure_dict[model_name] = fig
+    figure_dict = {model_name : generate_model_figure(model_name, config) for model_name in config['models']}
 
     return figure_dict
 
@@ -157,7 +162,7 @@ def main():
 
     args = ap.parse_args()
 
-    config = configparser.ConfigParser()
+    config = MyConfigParser()
     config.read(args.config)
 
     if args.use_cache:
