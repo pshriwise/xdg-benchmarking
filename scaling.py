@@ -100,6 +100,9 @@ if __name__ == '__main__':
         fig.update_yaxes(title_text=model_name, row=i+1, col=1)
         fig.update_yaxes(title_text=model_name, row=i+1, col=2)
 
+    # ensure that the cache directory exists
+    Path('./.cache').mkdir(exist_ok=True)
+
     for i, input_path in enumerate(args.input_paths):
         model_name = input_path.split('/')[-1]
         for j, (e, n) in enumerate(zip(args.openmc_executables, args.executable_names)):
