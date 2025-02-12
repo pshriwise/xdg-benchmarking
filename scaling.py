@@ -95,8 +95,7 @@ if __name__ == '__main__':
         yaxis2=dict(showgrid=True)
     )
 
-    for i, input_path in enumerate(args.input_paths):
-        model_name = input_path.split('/')[-1]
+    for i, model_name in enumerate(args.model_names):
         fig.update_yaxes(title_text=model_name, row=i+1, col=1)
         fig.update_yaxes(title_text=model_name, row=i+1, col=2)
 
