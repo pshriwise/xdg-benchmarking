@@ -72,7 +72,7 @@ if __name__ == '__main__':
         config.read(args.config)
         args.openmc_executables = list(config['executables'].values())
         args.executable_names = list(config['executables'].keys())
-        args.model_names = list(config['models'].values())
+        args.model_names = list(config['models'].keys())
         args.input_paths = list(config['models'].values())
 
     print(f'OpenMC Executables: {args.openmc_executables}')
