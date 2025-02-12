@@ -78,6 +78,7 @@ html_template = """
         iframe {
             width: 100%;
             height: 600px;
+            max-height: 80vh;
             border: none;
         }
     </style>
@@ -101,22 +102,19 @@ html_template = """
     </div>
 
     <script>
-        function openCategory(event, categoryId) {
-            // Hide all sub-tabs
-            let subTabs = document.getElementsByClassName("sub-tab-container");
-            for (let i = 0; i < subTabs.length; i++) {
-                subTabs[i].style.display = "none";
-            }
-
-            // Show selected category's sub-tabs
-            document.getElementById(categoryId).style.display = "block";
-        }
-
         function openPlot(event, plotSrc) {
             let plotFrame = document.getElementById("plot-frame");
             plotFrame.src = plotSrc;
             plotFrame.style.display = "block";
         }
+
+        // Auto-load the first plot when the page loads
+        window.onload = function() {
+            let firstTab = document.querySelector(".tab");
+            if (firstTab) {
+                firstTab.click(); // Simulate a click on the first tab
+            }
+        };
     </script>
 
 </body>
