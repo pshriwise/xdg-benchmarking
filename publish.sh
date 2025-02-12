@@ -13,4 +13,18 @@ git push origin gh-pages
 
 cd ..
 
-rm -rfi gh-pages
+
+confirm() {
+    # call with a prompt string or use a default
+    read -r -p "${1:-Are you sure? [y/N]} " response
+    case "$response" in
+        [yY][eE][sS]|[yY])
+            true
+            ;;
+        *)
+            false
+            ;;
+    esac
+}
+
+confirm "Do you want to delete the gh-pages directory?" && rm -rf gh-pages
