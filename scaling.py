@@ -95,8 +95,7 @@ if __name__ == '__main__':
         yaxis2=dict(showgrid=True)
     )
 
-    for i, input_path in enumerate(args.input_paths):
-        model_name = input_path.split('/')[-1]
+    for i, (model_name, input_path) in enumerate(zip(args.model_names, args.input_paths)):
         fig.update_yaxes(title_text=model_name, row=i+1, col=1)
         fig.update_yaxes(title_text=model_name, row=i+1, col=2)
 
@@ -154,4 +153,4 @@ if __name__ == '__main__':
                 row=i+1, col=2
             )
 
-    fig.write_html(f'{model_name}_scaling_dashboard.html')
+    fig.write_html(f'dashboard.html')
