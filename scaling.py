@@ -1,4 +1,5 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, BooleanOptionalAction
+from pathlib import Path
 
 import openmc
 import numpy as np
@@ -61,6 +62,7 @@ if __name__ == '__main__':
     ap = ArgumentParser()
 
     ap.add_argument('--config', type=str, help='Path to configuration file', default='scaling_config.i')
+    ap.add_argument('--use-cache', type=bool, help='Use cached data', action=BooleanOptionalAction, default=False)
     ap.add_argument('--input-paths', type=str, nargs='+')
 
     args = ap.parse_args()
@@ -102,14 +104,22 @@ if __name__ == '__main__':
         model_name = input_path.split('/')[-1]
         for j, (e, n) in enumerate(zip(args.openmc_executables, args.executable_names)):
 
-            if n in config['max_threads']:
-                max_threads = int(config['max_threads'][n])
-            else:
-                max_threads = MAX_THREADS
-            threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread)
+            data_file = './.cache/' / Path(f'{model_name}_{n}_scaling.csv')
 
-            data = np.column_stack((threads, inactive_rates, active_rates))
-            np.savetxt(f'{model_name}_{n}_scaling.csv', data, delimiter=',', header='Threads,Inactive rate,Active rate')
+            if args.use_cache and data_file.exists():
+                print(f'Using cached data for {model_name} ({n})')
+                data = np.loadtxt(data_file, delimiter=',')
+                threads, inactive_rates, active_rates = data[:, 0], data[:, 1], data[:, 2]
+            else:
+                if n in config['max_threads']:
+                    max_threads = int(config['max_threads'][n])
+                else:
+                    max_threads = MAX_THREADS
+                print(f'Gathering scaling data for {model_name} ({n})')
+                threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread)
+
+                data = np.column_stack((threads, inactive_rates, active_rates))
+                np.savetxt(data_file, data, delimiter=',', header='Threads,Inactive rate,Active rate')
 
             if all(inactive_rates != np.nan):
                 plt.figure()
