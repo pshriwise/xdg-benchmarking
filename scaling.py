@@ -4,6 +4,7 @@ import openmc
 import numpy as np
 from matplotlib import pyplot as plt
 from plotly.subplots import make_subplots
+import configparser
 import plotly.graph_objects as go
 
 
@@ -50,19 +51,32 @@ def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_threa
 
     return threads, inactive_rates, active_rates
 
-max_threads = 90
+MAX_THREADS = 90
 n_runs = 1
-particles_per_thread = 5000
+particles_per_thread = 100
+
 
 if __name__ == '__main__':
 
     ap = ArgumentParser()
 
-    ap.add_argument('--openmc-executables', type=str, nargs='+')
-    ap.add_argument('--executable-names', type=str, nargs='+')
+    ap.add_argument('--config', type=str, help='Path to configuration file', default='scaling_config.i')
     ap.add_argument('--input-paths', type=str, nargs='+')
 
     args = ap.parse_args()
+
+    if args.config:
+        config = configparser.ConfigParser()
+        config.read(args.config)
+        args.openmc_executables = list(config['executables'].values())
+        args.executable_names = list(config['executables'].keys())
+        args.model_names = list(config['models'].values())
+        args.input_paths = list(config['models'].values())
+
+    print(f'OpenMC Executables: {args.openmc_executables}')
+    print(f'Model Names: {args.model_names}')
+    print(f'Input Paths: {args.input_paths}')
+    print(f'Model names: {args.model_names}')
 
     if len(args.openmc_executables) != len(args.executable_names):
         raise ValueError('Number of executable paths must match number of names')
@@ -87,6 +101,11 @@ if __name__ == '__main__':
     for i, input_path in enumerate(args.input_paths):
         model_name = input_path.split('/')[-1]
         for j, (e, n) in enumerate(zip(args.openmc_executables, args.executable_names)):
+
+            if n in config['max_threads']:
+                max_threads = int(config['max_threads'][n])
+            else:
+                max_threads = MAX_THREADS
             threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread)
 
             data = np.column_stack((threads, inactive_rates, active_rates))
