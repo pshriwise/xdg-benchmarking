@@ -53,7 +53,6 @@ def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_threa
     return threads, inactive_rates, active_rates
 
 def generate_model_figure(model_name, config):
-
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling'))
     fig.update_xaxes(title_text='Threads', row=1, col=1)
     fig.update_yaxes(title_text='Particles per second', row=1, col=1)
@@ -127,7 +126,7 @@ n_runs = 1
 particles_per_thread = 100
 
 
-def model_figures(config_file='scaling_config.ini'):
+def model_figures(config_file='scaling_config.i'):
     config = configparser.ConfigParser()
     config.read(config_file)
 
@@ -138,6 +137,17 @@ def model_figures(config_file='scaling_config.ini'):
         figure_dict[model_name] = fig
 
     return figure_dict
+
+
+def model_html(config_file='scaling_config.i'):
+    figure_dict = model_figures(config_file)
+    dashboard_files = {}
+    for title, fig in figure_dict.items():
+            filename = f"dashboards/{title.replace(' ', '_').lower()}.html"
+            fig.write_html(filename, full_html=True, include_plotlyjs="cdn")
+            dashboard_files[title] = filename
+    return dashboard_files
+
 
 def main():
     ap = ArgumentParser()
@@ -176,6 +186,7 @@ def main():
 
     for model_name, fig in figure_dict.items():
         fig.write_html(f'{model_name}_dashboard.html')
+
 
 if __name__ == '__main__':
     main()
