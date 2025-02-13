@@ -17,7 +17,7 @@ class MyConfigParser(configparser.ConfigParser):
         self.optionxform = str
 
 
-def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_thread):
+def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_thread, output=True):
 
     threads = np.array(range(0, max_threads, 5))
     inactive_particles = np.zeros(len(threads), dtype=int)
@@ -42,9 +42,10 @@ def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_threa
         if model.settings.run_mode == 'fixed source':
             model.settings.batches = 5
 
+        print(f'Running {openmc_exe} with {n_threads} threads')
         threads[i] = n_threads
         for _ in range(n_runs):
-            statepoint = model.run(openmc_exec=openmc_exe, threads=n_threads, particles=particles_per_thread*n_threads)
+            statepoint = model.run(openmc_exec=openmc_exe, threads=n_threads, particles=particles_per_thread*n_threads, output=output)
 
             with openmc.StatePoint(statepoint, autolink=False) as sp:
                 inactive_particles[i] = sp.n_inactive * sp.n_particles
@@ -92,7 +93,12 @@ def generate_model_figure(model_name, config):
             else:
                 max_threads = MAX_THREADS
             print(f'Gathering scaling data for {model_name} ({n})')
-            threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread)
+            if 'output' in config['options']:
+                output = config.getboolean('options', 'output')
+            else:
+                output = True
+
+            threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread, output)
 
             data = np.column_stack((threads, inactive_rates, active_rates))
             np.savetxt(data_file, data, delimiter=',', header='Threads,Inactive rate,Active rate')
