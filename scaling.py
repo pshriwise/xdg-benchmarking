@@ -1,5 +1,7 @@
 from argparse import ArgumentParser, BooleanOptionalAction
 from pathlib import Path
+import json
+
 
 import openmc
 import numpy as np
@@ -42,6 +44,16 @@ def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_threa
         if model.settings.run_mode == 'fixed source':
             model.settings.batches = 5
 
+        # add flux tally to model based on fine energy group structure
+        tally = openmc.Tally()
+        tally.scores = ['flux']
+        e_filter = openmc.EnergyFilter.from_group_structure('CCFE-709')
+        tally.filters = [e_filter]
+
+        model.tallies.append(tally)
+
+        results = {}
+
         print(f'Running {openmc_exe} with {n_threads} threads')
         threads[i] = n_threads
         for _ in range(n_runs):
@@ -53,13 +65,34 @@ def gather_scaling_data(openmc_exe, input_path, max_threads, particles_per_threa
                 inactive_time[i] += sp.runtime['inactive batches']
                 active_time[i] += sp.runtime['active batches']
 
+        # after the last run, get some data from the final statepoint.
+        # it will be run with the most particles and results should
+        # have the lowest variance
+        with openmc.StatePoint(statepoint, autolink=False) as sp:
+                if sp.run_mode == 'eigenvalue':
+                    eigenvalue = sp.k_combined
+                else:
+                    eigenvalue = None
+
+                # extract flux results from the statepoint file
+                sp_tally = sp.tallies[tally.id]
+                flux_results = sp_tally.get_reshaped_data().squeeze()
+                energy_divs = e_filter.values
+
     inactive_time /= n_runs
     active_time /= n_runs
 
     inactive_rates = np.asarray(inactive_particles) / np.asarray(inactive_time)
     active_rates = np.asarray(active_particles) / np.asarray(active_time)
 
-    return threads, inactive_rates, active_rates
+    results['inactive_rates'] = inactive_rates
+    results['active_rates'] = active_rates
+    results['threads'] = threads
+    results['eigenvalue'] = eigenvalue
+    results['flux_values'] = flux_results
+    results['energy_divs'] = energy_divs
+
+    return results
 
 def generate_model_figure(model_name, config):
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling'))
@@ -98,7 +131,8 @@ def generate_model_figure(model_name, config):
             else:
                 output = True
 
-            threads, inactive_rates, active_rates = gather_scaling_data(e, input_path, max_threads, particles_per_thread, output)
+            results =  gather_scaling_data(e, input_path, max_threads, particles_per_thread, output)
+            threads, inactive_rates, active_rates = (results['threads'], results['inactive_rates'], results['active_rates'])
 
             data = np.column_stack((threads, inactive_rates, active_rates))
             np.savetxt(data_file, data, delimiter=',', header='Threads,Inactive rate,Active rate')
@@ -137,7 +171,7 @@ def generate_model_figure(model_name, config):
 
 MAX_THREADS = 90
 n_runs = 1
-particles_per_thread = 100
+particles_per_thread = 1000
 
 
 def model_figures(config_file='scaling_config.i'):
