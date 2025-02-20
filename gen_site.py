@@ -78,8 +78,8 @@ html_template = """
         }
         iframe {
             width: 100%;
-            height: 600px;
-            max-height: 80vh;
+            height: 1200px;
+            max-height: 120vh;
             border: none;
         }
     </style>

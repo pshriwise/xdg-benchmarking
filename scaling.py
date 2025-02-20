@@ -144,11 +144,12 @@ def gather_scaling_data(model_name, openmc_exe, config):
 
     return results
 
+
 def generate_model_figure(model_name, results):
     fig = make_subplots(
         rows=3, cols=2,
         subplot_titles=('Flux vs Energy', 'Inactive Rate Scaling', 'Active Rate Scaling'),
-        specs=[[{"colspan": 2}, None], [{"colspan": 1}, {"colspan": 1}], [{"colspan": 2, "type": "table"}, None]]
+        specs=[[{"colspan": 2}, None], [{}, {}], [{"colspan": 2, "type": "table"}, None]]
     )
     fig.update_xaxes(title_text='Energy (eV)', row=1, col=1)
     fig.update_yaxes(title_text='Flux', row=1, col=1)
@@ -172,39 +173,22 @@ def generate_model_figure(model_name, results):
         eigenvalue = f'{r["eigenvalue"]:0.7f}' if r['eigenvalue'] is not None else 'N/A'
         eigenvalues.append([n, eigenvalue])
 
-        if all(inactive_rates != np.nan):
-            plt.figure()
-            plt.title('Inactive Rate Scaling')
-            plt.plot(threads, inactive_rates, label=f'Inactive rate ({model_name})')
-            plt.xlabel('Threads')
-            plt.ylabel('Particles per second')
-            plt.legend()
-            plt.grid()
-            plt.savefig(f'{model_name}_{n}_inactive_rates.png')
+        fig.add_trace(
+            go.Scatter(x=energy_divs, y=flux_values, mode='lines+markers', name=f'{n} Flux', line_shape='hv', legendgroup='flux', legendgrouptitle_text="Flux", showlegend=True),
+            row=1, col=1
+        )
 
+        if all(inactive_rates != np.nan):
             fig.add_trace(
-                go.Scatter(x=threads, y=inactive_rates, mode='lines+markers', name=n),
+                go.Scatter(x=threads, y=inactive_rates, mode='lines+markers', name=n, legendgroup='inactive', legendgrouptitle_text="Inatcive Rates", showlegend=True),
                 row=2, col=1
             )
 
-        plt.figure()
-        plt.title('Active Rate Scaling')
-        plt.plot(threads, active_rates, label=f'Active rate ({model_name})')
-        plt.xlabel('Threads')
-        plt.ylabel('Particles per second')
-        plt.legend()
-        plt.grid()
-        plt.savefig(f'{model_name}_{n}_active_rates.png')
-
         fig.add_trace(
-            go.Scatter(x=threads, y=active_rates, mode='lines+markers', name=n),
+            go.Scatter(x=threads, y=active_rates, mode='lines+markers', name=n, legendgroup='active', legendgrouptitle_text="Active Rates", showlegend=True),
             row=2, col=2
         )
 
-        fig.add_trace(
-            go.Scatter(x=energy_divs, y=flux_values, mode='lines+markers', name=f'{n} Flux', line_shape='hv'),
-            row=1, col=1
-        )
 
     fig.add_trace(
         go.Table(
@@ -212,6 +196,14 @@ def generate_model_figure(model_name, results):
             cells=dict(values=list(zip(*eigenvalues)))
         ),
         row=3, col=1
+    )
+
+    fig.update_layout(
+        legend=dict(
+            x=1,
+            y=1,
+            tracegroupgap=50,
+        ),
     )
 
     return fig
