@@ -146,16 +146,16 @@ def gather_scaling_data(model_name, openmc_exe, config):
 
 def generate_model_figure(model_name, results):
     fig = make_subplots(
-        rows=2, cols=2,
+        rows=3, cols=2,
         subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling', 'Flux vs Energy'),
-        specs=[[{"colspan": 1}, {"colspan": 1}], [{"colspan": 2}, None]]
+        specs=[[{"colspan": 1}, {"colspan": 1}], [{"colspan": 2, "type": "table"}, None], [{"colspan": 2}, None]]
     )
     fig.update_xaxes(title_text='Threads', row=1, col=1)
     fig.update_yaxes(title_text='Particles per second', row=1, col=1)
     fig.update_xaxes(title_text='Threads', row=1, col=2)
     fig.update_yaxes(title_text='Particles per second', row=1, col=2)
-    fig.update_xaxes(title_text='Energy (eV)', row=2, col=1)
-    fig.update_yaxes(title_text='Flux', row=2, col=1)
+    fig.update_xaxes(title_text='Energy (eV)', row=3, col=1)
+    fig.update_yaxes(title_text='Flux', row=3, col=1)
     fig.update_layout(
         xaxis=dict(showgrid=True),
         yaxis=dict(showgrid=True),
@@ -165,9 +165,12 @@ def generate_model_figure(model_name, results):
         yaxis3=dict(showgrid=True, type='log')
     )
 
+    eigenvalues = []
     for n, r in results.items():
         threads, inactive_rates, active_rates = r['threads'], r['inactive_rates'], r['active_rates']
         flux_values, energy_divs = r['flux_values'], r['energy_divs']
+        eigenvalue = f'{r['eigenvalue']:0.7f}' if r['eigenvalue'] is not None else 'N/A'
+        eigenvalues.append([n, eigenvalue])
 
         if all(inactive_rates != np.nan):
             plt.figure()
@@ -200,8 +203,16 @@ def generate_model_figure(model_name, results):
 
         fig.add_trace(
             go.Scatter(x=energy_divs, y=flux_values, mode='lines+markers', name=f'{n} Flux', line_shape='hv'),
-            row=2, col=1
+            row=3, col=1
         )
+
+    fig.add_trace(
+        go.Table(
+            header=dict(values=['Executable', 'Eigenvalue']),
+            cells=dict(values=list(zip(*eigenvalues)))
+        ),
+        row=2, col=1
+    )
 
     return fig
 
