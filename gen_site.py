@@ -7,10 +7,11 @@ from scaling import model_html
 # Ensure output directory exists
 Path("dashboards").mkdir(exist_ok=True)
 
-
 # Generate separate HTML files for each plot
 print('Calling for Model HTML file generation...')
 dashboard_files = model_html()
+
+
 
 # Jinja2 template for index.html
 html_template = """
