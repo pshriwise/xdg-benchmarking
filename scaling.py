@@ -145,23 +145,29 @@ def gather_scaling_data(model_name, openmc_exe, config):
     return results
 
 def generate_model_figure(model_name, results):
-    fig = make_subplots(rows=1, cols=2, subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling'))
+    fig = make_subplots(
+        rows=2, cols=2,
+        subplot_titles=('Inactive Rate Scaling', 'Active Rate Scaling', 'Flux vs Energy'),
+        specs=[[{"colspan": 1}, {"colspan": 1}], [{"colspan": 2}, None]]
+    )
     fig.update_xaxes(title_text='Threads', row=1, col=1)
     fig.update_yaxes(title_text='Particles per second', row=1, col=1)
     fig.update_xaxes(title_text='Threads', row=1, col=2)
     fig.update_yaxes(title_text='Particles per second', row=1, col=2)
+    fig.update_xaxes(title_text='Energy (eV)', row=2, col=1)
+    fig.update_yaxes(title_text='Flux', row=2, col=1)
     fig.update_layout(
         xaxis=dict(showgrid=True),
         yaxis=dict(showgrid=True),
         xaxis2=dict(showgrid=True),
-        yaxis2=dict(showgrid=True)
+        yaxis2=dict(showgrid=True),
+        xaxis3=dict(showgrid=True, type='log'),
+        yaxis3=dict(showgrid=True, type='log')
     )
 
     for n, r in results.items():
         threads, inactive_rates, active_rates = r['threads'], r['inactive_rates'], r['active_rates']
-
-        print(model_name)
-        print(inactive_rates)
+        flux_values, energy_divs = r['flux_values'], r['energy_divs']
 
         if all(inactive_rates != np.nan):
             plt.figure()
@@ -190,6 +196,11 @@ def generate_model_figure(model_name, results):
         fig.add_trace(
             go.Scatter(x=threads, y=active_rates, mode='lines+markers', name=n),
             row=1, col=2
+        )
+
+        fig.add_trace(
+            go.Scatter(x=energy_divs, y=flux_values, mode='lines+markers', name=f'{n} Flux', line_shape='hv'),
+            row=2, col=1
         )
 
     return fig
@@ -229,15 +240,45 @@ def get_config(config_file='scaling_config.i'):
     config.read(config_file)
     return config
 
+def model_flux_figure(model_name, config, all_results):
+    fig = make_subplots(rows=1, cols=1, subplot_titles=(f'{model_name} Flux'))
+
+    fig.update_xaxes(title_text='Energy (eV)', row=1, col=1)
+    fig.update_yaxes(title_text='Flux', row=1, col=1)
+    fig.update_layout(
+        xaxis=dict(showgrid=True, type='log'),
+        yaxis=dict(showgrid=True, type='log')
+    )
+
+    results = all_results[model_name]
+    for executable_name, exec_results in results.items():
+        energy_divs = exec_results['energy_divs']
+        flux_values = exec_results['flux_values']
+
+        fig.add_trace(
+            go.Scatter(x=energy_divs, y=flux_values, mode='lines+markers', name=executable_name, line_shape='hv'),
+            row=1, col=1
+        )
+
+    return fig
+
+def flux_figures(config, all_results=None):
+    if all_results is None:
+        all_results = get_all_results(config)
+    figure_dict = {}
+    for model_name in config['models']:
+        figure_dict[model_name] = model_flux_figure(model_name, config, all_results)
+    return figure_dict
+
 def model_html(config_file='scaling_config.i'):
     config = get_config(config_file)
     all_results = get_all_results(config)
     figure_dict = model_figures(config, all_results)
     dashboard_files = {}
     for title, fig in figure_dict.items():
-            filename = f"dashboards/{title.replace(' ', '_').lower()}.html"
-            fig.write_html(filename, full_html=True, include_plotlyjs="cdn")
-            dashboard_files[title] = filename
+        filename = f"dashboards/{title.replace(' ', '_').lower()}.html"
+        fig.write_html(filename, full_html=True, include_plotlyjs="cdn")
+        dashboard_files[title] = filename
 
     return dashboard_files
 
