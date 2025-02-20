@@ -114,12 +114,13 @@ def generate_model_figure(model_name, config):
 
     for j, (n, e) in enumerate(config['executables'].items()):
 
-        data_file = './.cache/' / Path(f'{model_name}_{n}_scaling.csv')
+        data_file = './.cache/' / Path(f'{model_name}_{n}_results.json')
 
         if config.getboolean('options', 'use_cache') and data_file.exists():
             print(f'Using cached data for {model_name} ({n})')
-            data = np.loadtxt(data_file, delimiter=',')
-            threads, inactive_rates, active_rates = data[:, 0], data[:, 1], data[:, 2]
+            with open(data_file, 'r') as data_file:
+                results = json.load(data_file)
+            threads, inactive_rates, active_rates = results['threads'], results['inactive_rates'], results['active_rates']
         else:
             if n in config['max_threads']:
                 max_threads = int(config['max_threads'][n])
@@ -134,8 +135,8 @@ def generate_model_figure(model_name, config):
             results =  gather_scaling_data(e, input_path, max_threads, particles_per_thread, output)
             threads, inactive_rates, active_rates = (results['threads'], results['inactive_rates'], results['active_rates'])
 
-            data = np.column_stack((threads, inactive_rates, active_rates))
-            np.savetxt(data_file, data, delimiter=',', header='Threads,Inactive rate,Active rate')
+            with open(data_file, 'w') as data_file:
+                json.dump(results, data_file, indent=4)
 
         if all(inactive_rates != np.nan):
             plt.figure()
