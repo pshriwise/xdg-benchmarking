@@ -47,7 +47,8 @@ def check_cache(model_name, executable_name):
 
 def gather_scaling_data(model_name, openmc_exe, config):
     # check the cache for data if requrested
-    if config.getboolean('options', 'use_cache', fallback=False):
+    if config.getboolean('options', 'use_cache', fallback=False) and \
+       config.getboolean('exec_cache', openmc_exe, fallback=False):
         print(f'Attempting to use cached data for {model_name} ({openmc_exe})...', end=' ')
         results = check_cache(model_name, openmc_exe)
         if results is not None:
@@ -203,6 +204,7 @@ def generate_model_figure(model_name, results):
             x=1,
             y=1,
             tracegroupgap=50,
+            groupclick='toggleitem'
         ),
     )
 
