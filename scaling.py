@@ -181,7 +181,7 @@ def generate_model_figure(model_name, results):
 
         if all(inactive_rates != np.nan):
             fig.add_trace(
-                go.Scatter(x=threads, y=inactive_rates, mode='lines+markers', name=n, legendgroup='inactive', legendgrouptitle_text="Inatcive Rates", showlegend=True),
+                go.Scatter(x=threads, y=inactive_rates, mode='lines+markers', name=n, legendgroup='inactive', legendgrouptitle_text="Inactive Rates", showlegend=True),
                 row=2, col=1
             )
 
