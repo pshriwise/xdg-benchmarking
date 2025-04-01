@@ -6,10 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XDG Benchmarking</title>
     <link rel="icon" type="image/x-icon" href="assets/xdg-favicon.png">
+    <!-- Load Roboto font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" type="text/css">
 
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
@@ -42,6 +44,7 @@
             border-bottom: none;
             margin-right: 5px;
             border-radius: 5px 5px 0 0;
+            transition: background 0.3s;
         }
         .tab:hover {
             background: #bbb;
@@ -49,6 +52,8 @@
         .active-tab {
             background: #fff;
             border-bottom: 2px solid white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
         }
         .sub-tab-container {
             display: none;
@@ -66,6 +71,14 @@
             max-height: 120vh;
             border: none;
         }
+        #description-frame {
+            height: auto;
+            min-height: 400px;
+            max-height: none;
+        }
+        .modelDescription {
+            font-family: 'Roboto', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -76,20 +89,34 @@
         <!-- Main Category Tabs -->
         <div class="tab-container">
             
-                <div class="tab" onclick="openPlot(event, 'dashboards/atr.html')">ATR</div>
+                <div class="tab" onclick="openPlot(event, 'dashboards/atr_description.html', 'dashboards/atr.html')">ATR</div>
             
-                <div class="tab" onclick="openPlot(event, 'dashboards/msre.html')">MSRE</div>
+                <div class="tab" onclick="openPlot(event, 'dashboards/msre_description.html', 'dashboards/msre.html')">MSRE</div>
             
         </div>
 
         <!-- Plot Content -->
         <div id="plot-container">
+        <div style="box-shadow: 0 4px 8px rgba(0,0,0,0.2); background: #fff; padding: 20px; margin: 20px auto; border-radius: 8px;">
+            <iframe id="description-frame" src="" style="display: none;"></iframe>
             <iframe id="plot-frame" src="" style="display: none;"></iframe>
+        </div>
         </div>
     </div>
 
     <script>
-        function openPlot(event, plotSrc) {
+        function openPlot(event, descSrc, plotSrc) {
+            let tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active-tab'));
+            event.currentTarget.classList.add('active-tab');
+
+            let descFrame = document.getElementById("description-frame");
+            descFrame.src = descSrc;
+            descFrame.style.display = "block";
+            descFrame.onload = function() {
+                descFrame.style.height = descFrame.contentWindow.document.body.scrollHeight + 'px';
+            };
+
             let plotFrame = document.getElementById("plot-frame");
             plotFrame.src = plotSrc;
             plotFrame.style.display = "block";
@@ -99,7 +126,7 @@
         window.onload = function() {
             let firstTab = document.querySelector(".tab");
             if (firstTab) {
-                firstTab.click(); // Simulate a click on the first tab
+                firstTab.click();
             }
         };
     </script>
