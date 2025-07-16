@@ -323,4 +323,4 @@ def update_charts(model, executables, runs, metric):
     return scaling_fig, speedup_fig, comparison_fig, summary_stats, data_table
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8050)
+    app.run(debug=True, host='0.0.0.0', port=8050)

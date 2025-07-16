@@ -323,9 +323,12 @@ def update_charts(selected_models, selected_executables, selected_runs, selected
     if df_filtered.empty:
         return {}, {}, {}, "No data available for selected metric", "No data available"
 
-    # Scaling chart
+        # Scaling chart
+    # Sort the data by threads to ensure proper line plotting
+    df_sorted = df_filtered.sort_values(['executable', 'threads'])
+
     scaling_fig = px.line(
-        df_filtered,
+        df_sorted,
         x='threads',
         y=selected_metric,
         color='executable',
@@ -341,25 +344,34 @@ def update_charts(selected_models, selected_executables, selected_runs, selected
         autosize=False
     )
 
-    # Speedup chart
+        # Speedup chart
     speedup_fig = go.Figure()
 
-    # Calculate speedup for each executable (using MOAB as reference)
+    # Calculate speedup for each executable and model combination
     for executable in df_filtered['executable'].unique():
-        exec_data = df_filtered[df_filtered['executable'] == executable].copy()
-        if not exec_data.empty:
-            # Get single-thread performance as baseline
-            single_thread = exec_data[exec_data['threads'] == 1][selected_metric].iloc[0]
-            if pd.notna(single_thread) and single_thread > 0:
-                exec_data['speedup'] = exec_data[selected_metric] / single_thread
+        for model in df_filtered['model'].unique():
+            # Get data for this specific executable and model
+            exec_model_data = df_filtered[(df_filtered['executable'] == executable) &
+                                        (df_filtered['model'] == model)].copy()
 
-                speedup_fig.add_trace(go.Scatter(
-                    x=exec_data['threads'],
-                    y=exec_data['speedup'],
-                    mode='lines+markers',
-                    name=f'{executable.upper()} Speedup',
-                    hovertemplate='Threads: %{x}<br>Speedup: %{y:.2f}<extra></extra>'
-                ))
+            if not exec_model_data.empty:
+                # Get single-thread performance as baseline for this specific model
+                single_thread_data = exec_model_data[exec_model_data['threads'] == 1]
+                if not single_thread_data.empty:
+                    single_thread = single_thread_data[selected_metric].iloc[0]
+                    if pd.notna(single_thread) and single_thread > 0:
+                        exec_model_data['speedup'] = exec_model_data[selected_metric] / single_thread
+
+                        # Sort by thread count to ensure proper line plotting
+                        exec_model_data_sorted = exec_model_data.sort_values('threads')
+
+                        speedup_fig.add_trace(go.Scatter(
+                            x=exec_model_data_sorted['threads'],
+                            y=exec_model_data_sorted['speedup'],
+                            mode='lines+markers',
+                            name=f'{executable.upper()} - {model.title()}',
+                            hovertemplate='Model: ' + model.title() + '<br>Threads: %{x}<br>Speedup: %{y:.2f}<extra></extra>'
+                        ))
 
     # Add ideal speedup line
     max_threads = df_filtered['threads'].max()
