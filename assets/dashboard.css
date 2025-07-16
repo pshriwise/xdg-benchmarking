@@ -203,6 +203,29 @@ html, body {
     overflow-x: hidden;
 }
 
+/* Ensure table text is readable */
+.table-container .dash-table-container {
+    color: #2c3e50 !important;
+}
+
+.table-container .dash-spreadsheet-container {
+    color: #2c3e50 !important;
+}
+
+.table-container .dash-spreadsheet-inner {
+    color: #2c3e50 !important;
+}
+
+.table-container .dash-spreadsheet-inner td {
+    color: #2c3e50 !important;
+    font-weight: 500;
+}
+
+.table-container .dash-spreadsheet-inner th {
+    color: white !important;
+    font-weight: bold;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .dashboard-container {

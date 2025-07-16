@@ -455,10 +455,23 @@ def update_charts(selected_models, selected_executables, selected_runs, selected
         columns=table_columns,
         page_size=10,
         style_table={'overflowX': 'auto'},
-        style_cell={'textAlign': 'left', 'padding': '10px'},
-        style_header={'backgroundColor': '#2c3e50', 'color': 'white', 'fontWeight': 'bold'},
+        style_cell={
+            'textAlign': 'left',
+            'padding': '10px',
+            'color': '#2c3e50',
+            'fontSize': '14px',
+            'fontFamily': 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'
+        },
+        style_header={
+            'backgroundColor': '#2c3e50',
+            'color': 'white',
+            'fontWeight': 'bold',
+            'fontSize': '14px',
+            'fontFamily': 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'
+        },
         style_data_conditional=[
-            {'if': {'row_index': 'odd'}, 'backgroundColor': '#f8f9fa'}
+            {'if': {'row_index': 'odd'}, 'backgroundColor': '#f8f9fa'},
+            {'if': {'row_index': 'even'}, 'backgroundColor': 'white'}
         ]
     )
 
