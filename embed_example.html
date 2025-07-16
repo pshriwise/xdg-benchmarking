@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XDG Project - Benchmarking Results</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 3em;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        .page-subtitle {
+            font-size: 1.2em;
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .nav-bar {
+            background: #34495e;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #2c3e50;
+        }
+
+        .nav-link.active {
+            background: #3498db;
+        }
+
+        .content-section {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section-description {
+            font-size: 1.1em;
+            color: #34495e;
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .dashboard-embed {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1 class="page-title">XDG Project</h1>
+        <p class="page-subtitle">Accelerated Discretized Geometry for OpenMC</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <a href="#overview" class="nav-link">Overview</a>
+        <a href="#benchmarks" class="nav-link active">Benchmarks</a>
+        <a href="#documentation" class="nav-link">Documentation</a>
+        <a href="#download" class="nav-link">Download</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Overview Section -->
+        <section id="overview" class="content-section">
+            <h2 class="section-title">Project Overview</h2>
+            <p class="section-description">
+                XDG (Accelerated Discretized Geometry) is a high-performance geometry acceleration system
+                for OpenMC that significantly improves particle transport simulation performance through
+                advanced discretization techniques. This project focuses on shared memory parallelism
+                due to the higher memory footprint of the geometry representation employed by XDG.
+            </p>
+        </section>
+
+        <!-- Benchmarking Section -->
+        <section id="benchmarks" class="content-section">
+            <h2 class="section-title">Performance Benchmarks</h2>
+            <p class="section-description">
+                Explore the performance characteristics of XDG across different reactor geometries and
+                compare against reference implementations. The interactive dashboard below shows scaling
+                performance, speedup analysis, and detailed statistics.
+            </p>
+
+            <!-- Dashboard Embed -->
+            <div class="dashboard-embed">
+                <iframe
+                    src="http://localhost:8050"
+                    width="100%"
+                    height="1200px"
+                    frameborder="0"
+                    style="border: none;">
+                </iframe>
+            </div>
+        </section>
+
+        <!-- Documentation Section -->
+        <section id="documentation" class="content-section">
+            <h2 class="section-title">Documentation</h2>
+            <p class="section-description">
+                Comprehensive documentation for XDG including installation guides, API reference,
+                and performance optimization tips.
+            </p>
+            <!-- Add documentation links here -->
+        </section>
+
+        <!-- Download Section -->
+        <section id="download" class="content-section">
+            <h2 class="section-title">Download & Installation</h2>
+            <p class="section-description">
+                Get started with XDG by downloading the latest release or building from source.
+            </p>
+            <!-- Add download links here -->
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 XDG Project. All rights reserved.</p>
+        <p>
+            <a href="https://github.com/xdg-project">GitHub</a> |
+            <a href="mailto:contact@xdg-project.org">Contact</a> |
+            <a href="/privacy">Privacy Policy</a>
+        </p>
+    </footer>
+</body>
+</html>
