@@ -195,6 +195,108 @@ html, body {
     color: #2c3e50 !important;
 }
 
+/* More aggressive dropdown text styling */
+.filter-dropdown * {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .Select-control {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .Select-control * {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .Select-menu-outer {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .Select-menu-outer * {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .Select-option {
+    color: #2c3e50 !important;
+    background-color: white !important;
+}
+
+.filter-dropdown .Select-option:hover {
+    background-color: #ecf0f1 !important;
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .Select-option.is-selected {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+.filter-dropdown .Select-option.is-focused {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+/* Force all dropdown text to be dark */
+.filter-dropdown .Select-value-label,
+.filter-dropdown .Select-input,
+.filter-dropdown .Select-input input,
+.filter-dropdown .Select-option,
+.filter-dropdown .Select-placeholder {
+    color: #2c3e50 !important;
+    font-weight: 500 !important;
+}
+
+/* Override any light text colors */
+.filter-dropdown [style*="color:"] {
+    color: #2c3e50 !important;
+}
+
+/* Target Dash-specific dropdown elements */
+.dash-dropdown .Select-control,
+.dash-dropdown .Select-control *,
+.dash-dropdown .Select-menu-outer,
+.dash-dropdown .Select-menu-outer *,
+.dash-dropdown .Select-option,
+.dash-dropdown .Select-value-label,
+.dash-dropdown .Select-input,
+.dash-dropdown .Select-input input {
+    color: #2c3e50 !important;
+    font-weight: 500 !important;
+}
+
+/* Force all text in dropdowns to be dark */
+.Select-control,
+.Select-control *,
+.Select-menu-outer,
+.Select-menu-outer *,
+.Select-option,
+.Select-value-label,
+.Select-input,
+.Select-input input {
+    color: #2c3e50 !important;
+}
+
+/* Ensure dropdown options are readable */
+.Select-option {
+    color: #2c3e50 !important;
+    background-color: white !important;
+}
+
+.Select-option:hover {
+    background-color: #ecf0f1 !important;
+    color: #2c3e50 !important;
+}
+
+.Select-option.is-selected {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+.Select-option.is-focused {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
 /* Charts Section */
 .charts-row {
     display: grid;

@@ -12,6 +12,8 @@
 - [x] Create Plotly Dash multi-page application
 - [x] Build interactive visualizations
 - [x] Add filtering and comparison features
+- [x] Fix speedup calculation (per-model instead of global)
+- [x] Fix dashboard startup compatibility issues
 - [ ] Implement export capabilities
 
 ## Data Migration
