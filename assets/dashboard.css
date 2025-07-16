@@ -125,6 +125,76 @@ html, body {
     width: 100%;
 }
 
+/* Ensure dropdown text is readable */
+.filter-dropdown .Select-control {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .Select-value-label {
+    color: #2c3e50 !important;
+    font-weight: 500;
+}
+
+.filter-dropdown .Select-placeholder {
+    color: #7f8c8d !important;
+}
+
+.filter-dropdown .Select-option {
+    color: #2c3e50 !important;
+    background-color: white;
+}
+
+.filter-dropdown .Select-option:hover {
+    background-color: #ecf0f1;
+}
+
+.filter-dropdown .Select-option.is-selected {
+    background-color: #3498db;
+    color: white !important;
+}
+
+.filter-dropdown .Select-option.is-focused {
+    background-color: #3498db;
+    color: white !important;
+}
+
+/* For newer Dash versions with different dropdown styling */
+.filter-dropdown .dash-dropdown {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .dash-dropdown .Select-control {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .dash-dropdown .Select-value-label {
+    color: #2c3e50 !important;
+    font-weight: 500;
+}
+
+/* Additional dropdown text styling for various Dash versions */
+.filter-dropdown .dash-dropdown .Select-value {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .dash-dropdown .Select-input {
+    color: #2c3e50 !important;
+}
+
+.filter-dropdown .dash-dropdown .Select-input input {
+    color: #2c3e50 !important;
+}
+
+/* Ensure dropdown text is visible in all states */
+.filter-dropdown .Select-control .Select-value .Select-value-label {
+    color: #2c3e50 !important;
+    font-weight: 500;
+}
+
+.filter-dropdown .Select-control .Select-input > input {
+    color: #2c3e50 !important;
+}
+
 /* Charts Section */
 .charts-row {
     display: grid;
