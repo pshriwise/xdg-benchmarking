@@ -324,18 +324,29 @@ def update_charts(selected_models, selected_executables, selected_runs, selected
         return {}, {}, {}, "No data available for selected metric", "No data available"
 
         # Scaling chart
-    # Sort the data by threads to ensure proper line plotting
-    df_sorted = df_filtered.sort_values(['executable', 'threads'])
+    scaling_fig = go.Figure()
 
-    scaling_fig = px.line(
-        df_sorted,
-        x='threads',
-        y=selected_metric,
-        color='executable',
-        title=f'{selected_metric.replace("_", " ").title()} vs Thread Count',
-        labels={'threads': 'Number of Threads', selected_metric: f'{selected_metric.replace("_", " ").title()} (particles/sec)'}
-    )
+    # Plot each executable and model combination separately
+    for executable in df_filtered['executable'].unique():
+        for model in df_filtered['model'].unique():
+            # Get data for this specific executable and model
+            exec_model_data = df_filtered[(df_filtered['executable'] == executable) &
+                                        (df_filtered['model'] == model)].copy()
+
+            if not exec_model_data.empty:
+                # Sort by thread count to ensure proper line plotting
+                exec_model_data_sorted = exec_model_data.sort_values('threads')
+
+                scaling_fig.add_trace(go.Scatter(
+                    x=exec_model_data_sorted['threads'],
+                    y=exec_model_data_sorted[selected_metric],
+                    mode='lines+markers',
+                    name=f'{executable.upper()} - {model.title()}',
+                    hovertemplate='Model: ' + model.title() + '<br>Threads: %{x}<br>' + selected_metric.replace('_', ' ').title() + ': %{y:.2f}<extra></extra>'
+                ))
+
     scaling_fig.update_layout(
+        title=f'{selected_metric.replace("_", " ").title()} vs Thread Count',
         xaxis_title="Number of Threads",
         yaxis_title=f"{selected_metric.replace('_', ' ').title()} (particles/sec)",
         hovermode='x unified',
