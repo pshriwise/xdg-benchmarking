@@ -53,11 +53,6 @@ html, body {
     height: 60px;
     width: auto;
     filter: brightness(0) invert(1); /* Make logo white */
-    transition: filter 0.3s ease;
-}
-
-.xdg-logo:hover {
-    filter: brightness(1) invert(0); /* Show original colors on hover */
 }
 
 .header-text {
