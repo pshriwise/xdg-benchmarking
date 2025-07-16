@@ -168,10 +168,15 @@ data_manager = BenchmarkDataManager()
 app.layout = html.Div([
     # Header
     html.Div([
-        html.H1("XDG Benchmarking Dashboard",
-                className="dashboard-title"),
-        html.P("Accelerated Discretized Geometry Performance Analysis",
-               className="dashboard-subtitle"),
+        html.Div([
+            html.Img(src="/assets/xdg-logo.png", alt="XDG Logo", className="xdg-logo"),
+            html.Div([
+                html.H1("XDG Benchmarking Dashboard",
+                        className="dashboard-title"),
+                html.P("Accelerated Discretized Geometry Performance Analysis",
+                       className="dashboard-subtitle")
+            ], className="header-text")
+        ], className="header-left"),
         html.Div([
             html.Button([
                 html.I(className="fas fa-sync-alt"),

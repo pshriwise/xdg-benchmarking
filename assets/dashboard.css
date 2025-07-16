@@ -43,6 +43,28 @@ html, body {
     flex-wrap: wrap;
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.xdg-logo {
+    height: 60px;
+    width: auto;
+    filter: brightness(0) invert(1); /* Make logo white */
+    transition: filter 0.3s ease;
+}
+
+.xdg-logo:hover {
+    filter: brightness(1) invert(0); /* Show original colors on hover */
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+}
+
 .dashboard-title {
     margin: 0;
     font-size: 2.2em;
@@ -408,6 +430,16 @@ html, body {
         flex-direction: column;
         text-align: center;
         gap: 15px;
+    }
+
+    .header-left {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .xdg-logo {
+        height: 40px;
     }
 
     .dashboard-title {
